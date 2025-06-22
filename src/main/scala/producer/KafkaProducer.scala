@@ -1,19 +1,19 @@
+package producer
+
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
 import org.apache.kafka.common.internals.Topic
 
 import java.util.{Properties, Timer, TimerTask}
+import Delivery.DeliveryAgent
 
 object KafkaProducer {
   def run(agent: DeliveryAgent): Unit = {
     val timer = new Timer()
-
     val task = new TimerTask {
-      override def run(): Unit = {
-        sendLocation(agent)
-      }
+      override def run(): Unit = sendLocation(agent)
     }
 
-    timer.schedule(task, 0, 2000)
+    timer.schedule(task, 0, 5000)
   }
 
   private def sendLocation(agent: DeliveryAgent): Unit = {
