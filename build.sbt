@@ -1,10 +1,16 @@
 ThisBuild / version := "0.1.0-SNAPSHOT"
 
-ThisBuild / scalaVersion := "3.3.6"
+ThisBuild / scalaVersion := "2.13.12"
 
 lazy val root = (project in file("."))
   .settings(
     name := "trip-tracker"
   )
 
-libraryDependencies += "org.apache.kafka" % "kafka-clients" % "4.0.0"
+libraryDependencies += "org.apache.kafka" % "kafka-clients" % "3.4.1"
+
+libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-core" % "3.5.1",
+  "org.apache.spark" %% "spark-sql" % "3.5.1",
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.5.1"
+)
