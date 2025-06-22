@@ -14,3 +14,5 @@ libraryDependencies ++= Seq(
   "org.apache.spark" %% "spark-sql" % "3.5.1",
   "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.5.1"
 )
+
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16"

@@ -3,19 +3,8 @@ package consumer
 import org.apache.spark.sql.{DataFrame, SparkSession}
 
 case class Consumer(spark: SparkSession, currentLocation: Int = 0) {
-  def run(): Unit = {
-    println(s"Consumer is at location $currentLocation")
-  }
-
   def exe(userKey: String): Unit = {
-    spark.sparkContext.setLogLevel("ERROR")
-
-    val kafkaDf = spark.readStream
-      .format("kafka")
-      .option("kafka.bootstrap.servers", "localhost:9092")
-      .option("subscribe", "trip-tracker")
-      .option("startingOffsets", "earliest")
-      .load()
+    val kafkaDf: DataFrame = config()
 
     import spark.implicits._
 
@@ -25,8 +14,6 @@ case class Consumer(spark: SparkSession, currentLocation: Int = 0) {
       .filter(_._1 == userKey)
       .toDF("key", "value")
 
-    println(s"kafka df created... $userKey")
-
     val query = filteredMessages.writeStream
       .outputMode("append")
       .format("console")
@@ -34,5 +21,15 @@ case class Consumer(spark: SparkSession, currentLocation: Int = 0) {
       .start()
 
     query.awaitTermination()
+  }
+
+  private def config() = {
+    spark.readStream
+      .format("kafka")
+      .option("kafka.bootstrap.servers", "localhost:9092")
+      .option("subscribe", "trip-tracker")
+      .option("startingOffsets", "earliest")
+      .load()
+
   }
 }
