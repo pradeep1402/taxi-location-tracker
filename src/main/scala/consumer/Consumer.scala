@@ -1,26 +1,38 @@
 package consumer
 
-import org.apache.spark.sql.{DataFrame, SparkSession}
+import org.apache.spark.sql.functions.last
+import org.apache.spark.sql.{DataFrame, SparkSession, functions}
+
+import java.sql.Timestamp
+import scala.util.Try
 
 case class Consumer(spark: SparkSession, currentLocation: Int = 0) {
-  def exe(userKey: String): Unit = {
+  def nearestAgent(): Unit = {
     val kafkaDf: DataFrame = config()
 
     import spark.implicits._
 
-    val filteredMessages = kafkaDf
-      .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
-      .as[(String, String)]
-      .filter(_._1 == userKey)
-      .toDF("key", "value")
+    val parsedAgentData = kafkaDf
+      .selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)", "timestamp")
+      .as[(String, String, Timestamp)]
+      .filter(row => Try(row._2.toInt).isSuccess)
+      .map(row => (row._1, row._2.toInt, row._3, Math.abs(row._2.toInt - currentLocation)))
+      .toDF("key", "value", "timestamp", "distance")
 
-    val query = filteredMessages.writeStream
-      .outputMode("append")
+    val filteredMessages = parsedAgentData
+      .withWatermark("timestamp", "1 minute")
+      .groupBy($"key")
+      .agg(last($"value").as("last_location"),
+        last($"distance").as("distance"))
+      .sort($"distance".asc)
+      .limit(2)
+
+    filteredMessages.writeStream
+      .outputMode("complete")
       .format("console")
-      .option("numRows", 1000)
+      .option("numRows", 10)
       .start()
-
-    query.awaitTermination()
+      .awaitTermination()
   }
 
   private def config() = {

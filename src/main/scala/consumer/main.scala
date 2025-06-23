@@ -9,8 +9,8 @@ object main {
       .appName("trip-tracker-consumer")
       .master("local[4]")
       .getOrCreate()
-println("spark session created...")
-    val consumer1 = Consumer(spark, 0)
-    consumer1.exe("1")
+
+    val consumer1 = Consumer(spark, 10)
+    consumer1.nearestAgent()
   }
 }
