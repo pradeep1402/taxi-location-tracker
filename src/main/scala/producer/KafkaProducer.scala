@@ -1,10 +1,9 @@
 package producer
 
+import Delivery.DeliveryAgent
 import org.apache.kafka.clients.producer.{KafkaProducer, ProducerRecord}
-import org.apache.kafka.common.internals.Topic
 
 import java.util.{Properties, Timer, TimerTask}
-import Delivery.DeliveryAgent
 
 object KafkaProducer {
   def run(agent: DeliveryAgent): Unit = {
