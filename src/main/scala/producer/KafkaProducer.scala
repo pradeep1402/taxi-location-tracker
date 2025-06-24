@@ -9,7 +9,7 @@ import Delivery.DeliveryAgent
 object KafkaProducer {
   def run(agent: DeliveryAgent): Unit = {
     val timer = new Timer()
-    val task = new TimerTask {
+    val task  = new TimerTask {
       override def run(): Unit = sendLocation(agent)
     }
 
@@ -17,12 +17,12 @@ object KafkaProducer {
   }
 
   private def sendLocation(agent: DeliveryAgent): Unit = {
-    val topic = "trip-tracker"
-    val prop: Properties = config()
-    val producer = new KafkaProducer[String, String](prop)
-    val key = agent.id
-    val location = agent.currentLocation.toString
-    val record = new ProducerRecord[String, String](topic, key, location)
+    val topic: String                           = "trip-tracker"
+    val prop: Properties                        = config()
+    val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](prop)
+    val key: String                             = agent.id
+    val location: String                        = agent.currentLocation.toString
+    val record: ProducerRecord[String, String]  = new ProducerRecord[String, String](topic, key, location)
     agent.moving()
 
     producer.send(record)

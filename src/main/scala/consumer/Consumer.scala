@@ -22,8 +22,7 @@ case class Consumer(spark: SparkSession, currentLocation: Int = 0) {
     val filteredMessages = parsedAgentData
       .withWatermark("timestamp", "1 minute")
       .groupBy($"key")
-      .agg(last($"value").as("last_location"),
-        last($"distance").as("distance"))
+      .agg(last($"value").as("last_location"), last($"distance").as("distance"))
       .sort($"distance".asc)
       .limit(2)
 
